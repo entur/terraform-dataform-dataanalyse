@@ -7,5 +7,5 @@ resource "google_bigquery_dataset" "main" {
   dataset_id = each.value
   location   = var.region
 
-  labels = var.labels
+  labels = local.labels
 }

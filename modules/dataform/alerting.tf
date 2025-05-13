@@ -4,8 +4,9 @@ resource "google_logging_metric" "dataform_failed_workflows" {
   name        = "dataform_failed_workflows"
   description = "Log-based metric for failed Dataform workflows"
   filter = templatefile("${path.module}/templates/dataform_logging_metric.tftpl", {
-    release_config_id  = google_dataform_repository_release_config.main.name
-    workflow_config_id = google_dataform_repository_workflow_config.main.name
+    release_config_id      = google_dataform_repository_release_config.main.name
+    workflow_config_id     = google_dataform_repository_workflow_config.main.name
+    dataform_repository_id = resource.google_dataform_repository.main.name
   })
 
   metric_descriptor {
@@ -48,5 +49,5 @@ resource "google_monitoring_alert_policy" "workflow_run_failed" {
     Dataform release config ${resource.google_dataform_repository_release_config.main.name}  workflow failed.
     EOF
   }
-  user_labels = var.labels
+  user_labels = local.labels
 }

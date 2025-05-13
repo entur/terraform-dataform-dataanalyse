@@ -22,7 +22,7 @@ resource "google_dataform_repository" "main" {
   project  = local.project_id
   name     = local.github_repo_name
   region   = var.location
-  labels   = var.labels
+  labels   = local.labels
 
   git_remote_settings {
     default_branch                      = var.github_default_branch

@@ -26,11 +26,13 @@ variable "region" {
 
 variable "location" {
   default = "europe-west1"
+  type    = string
 }
 
 variable "github_default_branch" {
   type    = string
   default = "main"
+
 }
 
 variable "github_secret_name" {
@@ -67,7 +69,7 @@ locals {
   dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
   github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
   bigquery_datasets        = toset([for bq_dataset in var.bigquery_datasets : format("%s%s", var.bigquery_dataset_prefix, bq_dataset)])
-
+  labels                   = merge(var.labels, { "repo" : local.github_repo_name })
 }
 
 

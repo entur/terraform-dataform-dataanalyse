@@ -3,3 +3,4 @@ AND jsonPayload.@type="type.googleapis.com/google.cloud.dataform.logging.v1.Work
 AND jsonPayload.terminalState="FAILED" 
 AND jsonPayload.releaseConfigId="${release_config_id}" 
 AND jsonPayload.workflowConfigId="${workflow_config_id}"
+AND resource.labels.repository_id="${dataform_repository_id}"
