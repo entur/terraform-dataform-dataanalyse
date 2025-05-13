@@ -1,7 +1,7 @@
 variable "env" {
   description = "Environment descriptor (i.e. 'dev', 'tst', 'prd')."
   validation {
-    condition     = length(var.environment) == 3
+    condition     = length(var.env) == 3
     error_message = "The environment descriptor should be a 3 character string (i.e. 'dev', 'tst', 'prd')."
   }
   type = string
