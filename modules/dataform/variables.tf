@@ -50,7 +50,7 @@ variable "slack_notification_channel_id" {
 
 variable "source_datasets" {
   description = "A map of source datasets with project_id and dataset_id"
-  type        = map(object({
+  type = map(object({
     project_id = string
     dataset_id = string
   }))
@@ -65,8 +65,8 @@ variable "bigquery_dataset_prefix" {
 locals {
   project_id               = module.init.app.project_id
   dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
-  github_repo_name = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0]  // Extracts string between last "/" and ".git"
-  bigquery_datasets = toset([for bq_dataset in var.bigquery_datasets: format("%s%s", var.bigquery_dataset_prefix, bq_dataset)])
+  github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
+  bigquery_datasets        = toset([for bq_dataset in var.bigquery_datasets : format("%s%s", var.bigquery_dataset_prefix, bq_dataset)])
 
 }
 

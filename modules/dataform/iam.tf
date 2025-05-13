@@ -12,13 +12,10 @@ resource "google_project_iam_member" "project_bigquery_job_user" {
   depends_on = [google_dataform_repository.main]
 }
 
-resource "google_bigquery_dataset_iam_member" "data_editor" {
-  for_each = resource.google_bigquery_dataset.main
-
-  project    = local.project_id
-  dataset_id = each.value.dataset_id
-  role       = "roles/bigquery.dataEditor"
-  member     = local.dataform_service_account
+resource "google_project_iam_member" "service_account_editor" {
+  project = local.project_id
+  role    = "roles/bigquery.dataEditor"
+  member  = local.dataform_service_account
 }
 
 resource "google_bigquery_dataset_iam_member" "source_data_viewer" {
@@ -27,5 +24,5 @@ resource "google_bigquery_dataset_iam_member" "source_data_viewer" {
   project    = each.value.project_id
   dataset_id = each.value.dataset_id
   role       = "roles/bigquery.dataViewer"
-  member     = local.dataform_service_account 
+  member     = local.dataform_service_account
 }
