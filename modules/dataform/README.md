@@ -4,15 +4,15 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.11.0 |
-| <a name="requirement_google"></a> [google](#requirement\_google) | ~> 6.0.0 |
-| <a name="requirement_google-beta"></a> [google-beta](#requirement\_google-beta) | ~> 6.0.0 |
+| <a name="requirement_google"></a> [google](#requirement\_google) | >= 6.30.0 |
+| <a name="requirement_google-beta"></a> [google-beta](#requirement\_google-beta) | >= 6.30.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | ~> 6.0.0 |
-| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | ~> 6.0.0 |
+| <a name="provider_google"></a> [google](#provider\_google) | >= 6.30.0 |
+| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | >= 6.30.0 |
 
 ## Modules
 
@@ -27,9 +27,7 @@
 | [google-beta_google_dataform_repository.main](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_dataform_repository) | resource |
 | [google-beta_google_dataform_repository_release_config.main](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_dataform_repository_release_config) | resource |
 | [google-beta_google_dataform_repository_workflow_config.main](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_dataform_repository_workflow_config) | resource |
-| [google_bigquery_dataset.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_dataset) | resource |
 | [google_bigquery_dataset_iam_member.source_data_viewer](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_dataset_iam_member) | resource |
-| [google_logging_metric.dataform_failed_workflows](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/logging_metric) | resource |
 | [google_monitoring_alert_policy.workflow_run_failed](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy) | resource |
 | [google_project_iam_member.project_bigquery_job_user](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.service_account_editor](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
@@ -44,9 +42,7 @@
 | <a name="input_app_id"></a> [app\_id](#input\_app\_id) | Entur application ID | `string` | n/a | yes |
 | <a name="input_env"></a> [env](#input\_env) | Environment descriptor (i.e. 'dev', 'tst', 'prd'). | `string` | n/a | yes |
 | <a name="input_github_repo_url"></a> [github\_repo\_url](#input\_github\_repo\_url) | GitHub repository URL | `string` | n/a | yes |
-| <a name="input_labels"></a> [labels](#input\_labels) | labels to be applied to all resources | `map(string)` | n/a | yes |
-| <a name="input_bigquery_dataset_prefix"></a> [bigquery\_dataset\_prefix](#input\_bigquery\_dataset\_prefix) | Prefix for BigQuery datasets. | `string` | `""` | no |
-| <a name="input_bigquery_datasets"></a> [bigquery\_datasets](#input\_bigquery\_datasets) | List of BigQuery datasets to be generated | `set(string)` | `[]` | no |
+| <a name="input_extra_labels"></a> [extra\_labels](#input\_extra\_labels) | extra labels to be applied to all resources (in addition to init module labels) | `map(string)` | `{}` | no |
 | <a name="input_github_default_branch"></a> [github\_default\_branch](#input\_github\_default\_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_github_secret_name"></a> [github\_secret\_name](#input\_github\_secret\_name) | Name of the GitHub access token in Secret Manager | `string` | `"github-token"` | no |
 | <a name="input_location"></a> [location](#input\_location) | Location for gcp resources | `string` | `"europe-west1"` | no |

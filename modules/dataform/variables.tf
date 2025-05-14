@@ -12,9 +12,10 @@ variable "app_id" {
   type        = string
 }
 
-variable "labels" {
+variable "extra_labels" {
   type        = map(string)
-  description = "labels to be applied to all resources"
+  default     = {}
+  description = "extra labels to be applied to all resources (in addition to init module labels)"
 }
 
 variable "github_repo_url" {
@@ -52,18 +53,6 @@ variable "github_secret_name" {
   description = "Name of the GitHub access token in Secret Manager"
 }
 
-variable "bigquery_datasets" {
-  type        = set(string)
-  default     = []
-  description = "List of BigQuery datasets to be generated"
-}
-
-variable "bigquery_dataset_prefix" {
-  type        = string
-  default     = ""
-  description = "Prefix for BigQuery datasets."
-}
-
 
 variable "slack_notification_channel_id" {
   type        = string
@@ -85,8 +74,11 @@ locals {
   project_id               = module.init.app.project_id
   dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
   github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
-  bigquery_datasets        = toset([for bq_dataset in var.bigquery_datasets : format("%s%s", var.bigquery_dataset_prefix, bq_dataset)])
-  labels                   = merge(var.labels, { "repo" : local.github_repo_name })
+  labels = merge(
+    var.extra_labels,
+    { "repo" : local.github_repo_name },
+    module.init.labels
+  )
 }
 
 
