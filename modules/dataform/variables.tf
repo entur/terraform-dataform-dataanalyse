@@ -23,10 +23,14 @@ variable "github_repo_url" {
   description = "GitHub repository URL"
 }
 
-variable "main_cron_schedule" {
-  type        = string
-  default     = "0 * * * *"
-  description = "Cron schedule for the main dataform workflow"
+variable "dataform_workflows" {
+  type = map(object({
+    cron_schedule        = string
+    tags                 = list(string)
+    include_dependencies = optional(bool, false)
+  }))
+  default     = {}
+  description = "Dataform workflows to be created"
 }
 
 variable "region" {
