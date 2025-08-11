@@ -12,6 +12,12 @@ variable "app_id" {
   type        = string
 }
 
+variable "branch_name" {
+  description = "Branch name for the GitHub repository"
+  type        = string
+  default     = "main"
+}
+
 variable "extra_labels" {
   type        = map(string)
   default     = {}
