@@ -40,8 +40,8 @@ resource "google_dataform_repository_release_config" "main" {
   region     = var.location
   repository = google_dataform_repository.main.name
 
-  name          = "main"
-  git_commitish = "main"
+  name          = var.branch_name
+  git_commitish = var.branch_name
   cron_schedule = "0 5 * * *"
   time_zone     = "UTC"
 
