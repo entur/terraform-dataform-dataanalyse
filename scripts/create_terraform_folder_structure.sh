@@ -6,7 +6,15 @@ set -euo pipefail
 # Script to create a Terraform folder structure with environment tfvars, backend, and module setup
 # Usage: bash scripts/create_terraform_folder_structure.sh
 
-BASE_DIR="$(dirname "$0")/../terraform"
+
+# Accept destination as argument, default to ../terraform if not provided
+if [ -n "${1:-}" ]; then
+  BASE_DIR="$1"
+else
+  BASE_DIR="$(dirname "$0")/../terraform"
+fi
+
+BASE_DIR="$(cd "$BASE_DIR" && pwd)"
 
 if [ -d "$BASE_DIR" ]; then
   read -p "Directory $BASE_DIR already exists. Overwrite? (y/n): " choice
