@@ -1,6 +1,5 @@
 #!/bin/bash
 
-echo "Terraform folder structure created at $BASE_DIR."
 set -euo pipefail
 
 # Script to create a Terraform folder structure with environment tfvars, backend, and module setup
@@ -16,10 +15,15 @@ else
   BASE_PARENT="$(dirname "$0")/.."
 fi
 
+
 BASE_DIR="$BASE_PARENT/terraform"
-BASE_DIR="$(cd "$BASE_PARENT" && mkdir -p terraform && cd terraform && pwd)"
+
 
 if [ -d "$BASE_DIR" ]; then
+  # Only allow overwrite if the folder is named 'terraform'
+  if [ "$(basename "$BASE_DIR")" != "terraform" ]; then
+    echo "Refusing to overwrite: $BASE_DIR is not named 'terraform'. Aborting."; exit 1
+  fi
   read -p "Directory $BASE_DIR already exists. Overwrite? (y/n): " choice
   case "$choice" in
     y|Y )
