@@ -62,10 +62,12 @@ if [ -z "${APP_ID:-}" ]; then
   fi
 fi
 
+REPO_NAME=$(basename -s .git $(git config --get remote.origin.url) 2>/dev/null || echo "repo")
 cat > "$BASE_DIR/backend.tf" <<EOF
 terraform {
   backend "gcs" {
     bucket = "ent-gcs-tfa-${APP_ID}"
+    prefix = "${REPO_NAME}"
   }
 }
 EOF
