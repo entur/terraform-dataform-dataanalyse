@@ -8,13 +8,16 @@ set -euo pipefail
 
 
 # Accept destination as argument, default to ../terraform if not provided
+
+# Always create a 'terraform' subfolder inside the specified destination
 if [ -n "${1:-}" ]; then
-  BASE_DIR="$1"
+  BASE_PARENT="$1"
 else
-  BASE_DIR="$(dirname "$0")/../terraform"
+  BASE_PARENT="$(dirname "$0")/.."
 fi
 
-BASE_DIR="$(cd "$BASE_DIR" && pwd)"
+BASE_DIR="$BASE_PARENT/terraform"
+BASE_DIR="$(cd "$BASE_PARENT" && mkdir -p terraform && cd terraform && pwd)"
 
 if [ -d "$BASE_DIR" ]; then
   read -p "Directory $BASE_DIR already exists. Overwrite? (y/n): " choice
