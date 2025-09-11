@@ -1,13 +1,13 @@
 terraform {
-  required_version = "1.11.0"
+  required_version = "> 1.11.0"
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 6.30.0"
+      version = ">= 5.0, < 7.0"
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = ">= 6.30.0"
+      version = ">= 5.0, < 7.0"
     }
   }
 }
@@ -52,11 +52,16 @@ resource "google_dataform_repository_release_config" "main" {
 
 resource "google_dataform_repository_workflow_config" "main" {
   provider = google-beta
+  for_each = var.dataform_workflows
 
-  name          = "main"
-  cron_schedule = var.main_cron_schedule
-  time_zone     = "UTC"
+  name          = each.key
+  cron_schedule = each.value.cron_schedule
+  invocation_config {
+    included_tags                    = each.value.tags
+    transitive_dependencies_included = each.value.include_dependencies
+  }
 
+  time_zone = "UTC"
 
   project        = local.project_id
   region         = var.location
