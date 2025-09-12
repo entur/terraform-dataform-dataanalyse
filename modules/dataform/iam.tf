@@ -18,11 +18,3 @@ resource "google_project_iam_member" "service_account_editor" {
   member  = local.dataform_service_account
 }
 
-resource "google_bigquery_dataset_iam_member" "source_data_viewer" {
-  for_each = var.source_datasets
-
-  project    = each.value.project_id
-  dataset_id = each.value.dataset_id
-  role       = "roles/bigquery.dataViewer"
-  member     = local.dataform_service_account
-}

@@ -85,7 +85,6 @@ module "dataform" {
   github_default_branch = var.github_default_branch
   github_secret_name    = var.github_secret_name
   slack_notification_channel_id = var.slack_notification_channel_id
-  source_datasets = var.source_datasets
   dataform_workflows = var.dataform_workflows
 }
 EOF
@@ -165,14 +164,6 @@ variable "slack_notification_channel_id" {
   default     = null
 }
 
-variable "source_datasets" {
-  description = "Map of source datasets. Dataform service account will be granted access to these datasets if owned by Team Data."
-  type = map(object({
-    project_id = string
-    dataset_id = string
-  }))
-  default = {}
-}
 
 variable "dataform_workflows" {
   description = "Map of workflow configs for Dataform."

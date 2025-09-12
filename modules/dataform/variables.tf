@@ -70,14 +70,7 @@ variable "slack_notification_channel_id" {
   description = "notification channel id for slack alerting"
 }
 
-variable "source_datasets" {
-  description = "Map of source datasets. Dataform service account will be granted access to these datasets if owned by Team Data."
-  type = map(object({
-    project_id = string
-    dataset_id = string
-  }))
-  default = {}
-}
+
 
 
 locals {
