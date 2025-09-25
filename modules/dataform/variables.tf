@@ -39,12 +39,6 @@ variable "dataform_workflows" {
   description = "Dataform workflows to be created"
 }
 
-variable "region" {
-  default     = "EU"
-  type        = string
-  description = "Region for gcp resources"
-}
-
 variable "location" {
   default     = "europe-west1"
   type        = string

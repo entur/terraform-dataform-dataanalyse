@@ -11,8 +11,8 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | 6.49.2 |
-| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | 6.49.2 |
+| <a name="provider_google"></a> [google](#provider\_google) | 6.50.0 |
+| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | 6.50.0 |
 
 ## Modules
 
@@ -47,7 +47,6 @@
 | <a name="input_github_default_branch"></a> [github\_default\_branch](#input\_github\_default\_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_github_secret_name"></a> [github\_secret\_name](#input\_github\_secret\_name) | Name of the GitHub access token in Secret Manager | `string` | `"github-token"` | no |
 | <a name="input_location"></a> [location](#input\_location) | Location for gcp resources | `string` | `"europe-west1"` | no |
-| <a name="input_region"></a> [region](#input\_region) | Region for gcp resources | `string` | `"EU"` | no |
 | <a name="input_slack_notification_channel_id"></a> [slack\_notification\_channel\_id](#input\_slack\_notification\_channel\_id) | notification channel id for slack alerting | `string` | `null` | no |
 
 ## Outputs
