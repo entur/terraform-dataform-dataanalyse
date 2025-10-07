@@ -33,7 +33,7 @@ resource "google_service_account_iam_member" "workflow_runner_dataform_act_as" {
 }
 
 resource "google_service_account_iam_member" "workflow_runner_additional_act_as" {
-  for_each = toset(var.runner_service_account_user_members)
+  for_each = local.runner_service_account_user_members
 
   service_account_id = local.workflow_service_account_name
   role               = "roles/iam.serviceAccountUser"

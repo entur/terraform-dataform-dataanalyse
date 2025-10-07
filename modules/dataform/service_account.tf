@@ -2,8 +2,8 @@ resource "google_service_account" "workflow" {
   count        = var.runner_service_account_email == null ? 1 : 0
   project      = local.service_account_project
   account_id   = local.service_account_id
-  display_name = var.runner_service_account_display_name
-  description  = var.runner_service_account_description
+  display_name = "Dataform workflow runner"
+  description  = "Service account used to run Dataform workflows"
 
   lifecycle {
     precondition {
