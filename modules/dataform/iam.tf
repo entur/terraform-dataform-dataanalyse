@@ -18,3 +18,25 @@ resource "google_project_iam_member" "service_account_editor" {
   member  = local.dataform_service_account
 }
 
+resource "google_project_iam_member" "workflow_runner_roles" {
+  for_each = toset(var.runner_service_account_project_roles)
+
+  project = local.project_id
+  role    = each.value
+  member  = local.workflow_service_account_member
+}
+
+resource "google_service_account_iam_member" "workflow_runner_dataform_act_as" {
+  service_account_id = local.workflow_service_account_name
+  role               = "roles/iam.serviceAccountUser"
+  member             = local.dataform_service_account
+}
+
+resource "google_service_account_iam_member" "workflow_runner_additional_act_as" {
+  for_each = toset(var.runner_service_account_user_members)
+
+  service_account_id = local.workflow_service_account_name
+  role               = "roles/iam.serviceAccountUser"
+  member             = each.value
+}
+

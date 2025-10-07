@@ -54,11 +54,19 @@ resource "google_dataform_repository_workflow_config" "main" {
   provider = google-beta
   for_each = var.dataform_workflows
 
+  lifecycle {
+    precondition {
+      condition     = local.workflow_service_account_email != null && local.workflow_service_account_email != ""
+      error_message = "A workflow runner service account email must be provided or created."
+    }
+  }
+
   name          = each.key
   cron_schedule = each.value.cron_schedule
   invocation_config {
     included_tags                    = each.value.tags
     transitive_dependencies_included = each.value.include_dependencies
+    service_account                  = local.workflow_service_account_email
   }
 
   time_zone = "UTC"
