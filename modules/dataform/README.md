@@ -1,3 +1,11 @@
+## Operator permissions
+
+The identity running `terraform apply` must be able to manage IAM bindings on
+service accounts in the target project. Grant `roles/iam.serviceAccountAdmin`
+or an equivalent custom role before applying this module; otherwise Terraform
+will fail while attaching `roles/iam.serviceAccountUser` to the workflow runner
+service account it creates.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
