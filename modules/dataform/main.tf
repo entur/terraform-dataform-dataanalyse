@@ -45,6 +45,9 @@ resource "google_dataform_repository_release_config" "main" {
   cron_schedule = "0 5 * * *"
   time_zone     = "UTC"
 
+  # Use custom service account for strict act-as mode compliance
+  service_account = var.service_account_email
+
   code_compilation_config {
     default_database = local.project_id
   }
@@ -59,6 +62,8 @@ resource "google_dataform_repository_workflow_config" "main" {
   invocation_config {
     included_tags                    = each.value.tags
     transitive_dependencies_included = each.value.include_dependencies
+    # Use custom service account for strict act-as mode compliance
+    service_account = var.service_account_email
   }
 
   time_zone = "UTC"

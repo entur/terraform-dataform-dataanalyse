@@ -64,13 +64,21 @@ variable "slack_notification_channel_id" {
   description = "notification channel id for slack alerting"
 }
 
+variable "service_account_email" {
+  type        = string
+  description = "Email of the custom service account to use for Dataform workflows. Required for strict act-as mode compliance."
+}
 
+variable "workflow_invoker_members" {
+  type        = list(string)
+  default     = []
+  description = "List of members (users or service accounts) that need to invoke workflows. They will be granted roles/iam.serviceAccountUser on the custom service account."
+}
 
 
 locals {
-  project_id               = module.init.app.project_id
-  dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
-  github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
+  project_id       = module.init.app.project_id
+  github_repo_name = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
   labels = merge(
     var.extra_labels,
     { "repo" : local.github_repo_name },
