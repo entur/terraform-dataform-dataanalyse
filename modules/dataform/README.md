@@ -42,6 +42,7 @@
 | <a name="input_env"></a> [env](#input\_env) | Environment descriptor (i.e. 'dev', 'tst', 'prd'). | `string` | n/a | yes |
 | <a name="input_github_repo_url"></a> [github\_repo\_url](#input\_github\_repo\_url) | GitHub repository URL | `string` | n/a | yes |
 | <a name="input_branch_name"></a> [branch\_name](#input\_branch\_name) | Branch name for the GitHub repository | `string` | `"main"` | no |
+| <a name="input_dataform_repository_name"></a> [dataform\_repository\_name](#input\_dataform\_repository\_name) | Dataform workflows to be created | `string` | `null` | no |
 | <a name="input_dataform_workflows"></a> [dataform\_workflows](#input\_dataform\_workflows) | Dataform workflows to be created | <pre>map(object({<br/>    cron_schedule        = string<br/>    tags                 = list(string)<br/>    include_dependencies = optional(bool, false)<br/>  }))</pre> | `{}` | no |
 | <a name="input_extra_labels"></a> [extra\_labels](#input\_extra\_labels) | extra labels to be applied to all resources (in addition to init module labels) | `map(string)` | `{}` | no |
 | <a name="input_github_default_branch"></a> [github\_default\_branch](#input\_github\_default\_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
