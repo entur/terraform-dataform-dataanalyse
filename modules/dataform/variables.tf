@@ -29,6 +29,13 @@ variable "github_repo_url" {
   description = "GitHub repository URL"
 }
 
+variable "dataform_repository_name" {
+  type        = string
+  default     = null
+  description = "Dataform workflows to be created"
+}
+
+
 variable "dataform_workflows" {
   type = map(object({
     cron_schedule        = string

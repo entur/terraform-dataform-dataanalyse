@@ -22,7 +22,7 @@ module "init" {
 resource "google_dataform_repository" "main" {
   provider = google-beta
   project  = local.project_id
-  name     = local.github_repo_name
+  name     = coalesce(var.dataform_repository_name, local.github_repo_name)
   region   = var.location
   labels   = local.labels
 
