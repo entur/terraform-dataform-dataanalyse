@@ -4,7 +4,14 @@ The identity running `terraform apply` must be able to manage IAM bindings on
 service accounts in the target project. Grant `roles/iam.serviceAccountAdmin`
 or an equivalent custom role before applying this module; otherwise Terraform
 will fail while attaching `roles/iam.serviceAccountUser` to the workflow runner
-service account it creates.
+service account provided by the init module.
+
+> **Note**
+> This module reuses the default workflow-runner account exposed by the init
+> module (`module.init.service_accounts.default`). Ensure the init module
+> exposes this service account. You can adjust the roles granted to it through
+> `runner_service_account_project_roles` and extend impersonation with
+> `runner_service_account_user_members`.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -40,7 +47,6 @@ service account it creates.
 | [google_project_iam_member.service_account_editor](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.workflow_runner_roles](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_secret_manager_secret_iam_member.dataform_secret_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
-| [google_service_account.workflow](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
 | [google_service_account_iam_member.workflow_runner_additional_act_as](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_member) | resource |
 | [google_service_account_iam_member.workflow_runner_dataform_act_as](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_member) | resource |
 | [google_secret_manager_secret.github_token](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret) | data source |
@@ -54,15 +60,37 @@ service account it creates.
 | <a name="input_env"></a> [env](#input\_env) | Environment descriptor (i.e. 'dev', 'tst', 'prd'). | `string` | n/a | yes |
 | <a name="input_github_repo_url"></a> [github\_repo\_url](#input\_github\_repo\_url) | GitHub repository URL | `string` | n/a | yes |
 | <a name="input_branch_name"></a> [branch\_name](#input\_branch\_name) | Branch name for the GitHub repository | `string` | `"main"` | no |
+| <a name="input_dataform_repository_name"></a> [dataform\_repository\_name](#input\_dataform\_repository\_name) | Dataform workflows to be created | `string` | `null` | no |
 | <a name="input_dataform_workflows"></a> [dataform\_workflows](#input\_dataform\_workflows) | Dataform workflows to be created | <pre>map(object({<br/>    cron_schedule        = string<br/>    tags                 = list(string)<br/>    include_dependencies = optional(bool, false)<br/>  }))</pre> | `{}` | no |
 | <a name="input_extra_labels"></a> [extra\_labels](#input\_extra\_labels) | extra labels to be applied to all resources (in addition to init module labels) | `map(string)` | `{}` | no |
 | <a name="input_github_default_branch"></a> [github\_default\_branch](#input\_github\_default\_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_github_secret_name"></a> [github\_secret\_name](#input\_github\_secret\_name) | Name of the GitHub access token in Secret Manager | `string` | `"github-token"` | no |
 | <a name="input_location"></a> [location](#input\_location) | Location for gcp resources | `string` | `"europe-west1"` | no |
-| <a name="input_runner_service_account_email"></a> [runner\_service\_account\_email](#input\_runner\_service\_account\_email) | Existing service account email to run Dataform workflows. Leave null to let the module create one. | `string` | `null` | no |
-| <a name="input_runner_service_account_project_roles"></a> [runner\_service\_account\_project\_roles](#input\_runner\_service\_account\_project\_roles) | Project-level roles to bind to the runner service account. | `list(string)` | <pre>[<br/>  "roles/bigquery.dataEditor",<br/>  "roles/bigquery.jobUser"<br/>]</pre> | no |
-| <a name="input_runner_service_account_user_members"></a> [runner\_service\_account\_user\_members](#input\_runner\_service\_account\_user\_members) | Additional principals to grant roles/iam.serviceAccountUser on the runner service account. The module always grants group:sg-dig-team-data@entur.no by default. | `list(string)` | `[]` | no |
 | <a name="input_slack_notification_channel_id"></a> [slack\_notification\_channel\_id](#input\_slack\_notification\_channel\_id) | notification channel id for slack alerting | `string` | `null` | no |
+| <a name="input_app_id"></a> [app_id](#input_app_id) | Entur application ID | `string` | n/a | yes |
+| <a name="input_env"></a> [env](#input_env) | Environment descriptor (i.e. 'dev', 'tst', 'prd'). | `string` | n/a | yes |
+| <a name="input_github_repo_url"></a> [github_repo_url](#input_github_repo_url) | GitHub repository URL | `string` | n/a | yes |
+| <a name="input_branch_name"></a> [branch_name](#input_branch_name) | Branch name for the GitHub repository | `string` | `"main"` | no |
+| <a name="input_dataform_workflows"></a> [dataform_workflows](#input_dataform_workflows) | Dataform workflows to be created | <pre>map(object({<br/>    cron_schedule        = string<br/>    tags                 = list(string)<br/>    include_dependencies = optional(bool, false)<br/>  }))</pre> | `{}` | no |
+| <a name="input_extra_labels"></a> [extra_labels](#input_extra_labels) | extra labels to be applied to all resources (in addition to init module labels) | `map(string)` | `{}` | no |
+| <a name="input_github_default_branch"></a> [github_default_branch](#input_github_default_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
+| <a name="input_github_secret_name"></a> [github_secret_name](#input_github_secret_name) | Name of the GitHub access token in Secret Manager | `string` | `"github-token"` | no |
+| <a name="input_location"></a> [location](#input_location) | Location for gcp resources | `string` | `"europe-west1"` | no |
+| <a name="input_runner_service_account_project_roles"></a> [runner_service_account_project_roles](#input_runner_service_account_project_roles) | Project-level roles to bind to the runner service account. | `list(string)` | <pre>[<br/>  "roles/bigquery.dataEditor",<br/>  "roles/bigquery.jobUser"<br/>]</pre> | no |
+| <a name="input_runner_service_account_user_members"></a> [runner_service_account_user_members](#input_runner_service_account_user_members) | Additional principals to grant roles/iam.serviceAccountUser on the runner service account. | `list(string)` | `[]` | no |
+| <a name="input_slack_notification_channel_id"></a> [slack_notification_channel_id](#input_slack_notification_channel_id) | notification channel id for slack alerting | `string` | `null` | no |
+| <a name="input_app_id"></a> [app\_id](#input\_app\_id) | Entur application ID | `string` | n/a | yes |
+| <a name="input_env"></a> [env](#input\_env) | Environment descriptor (i.e. 'dev', 'tst', 'prd'). | `string` | n/a | yes |
+| <a name="input_github_repo_url"></a> [github\_repo\_url](#input\_github\_repo\_url) | GitHub repository URL | `string` | n/a | yes |
+| <a name="input_branch_name"></a> [branch\_name](#input\_branch\_name) | Branch name for the GitHub repository | `string` | `"main"` | no |
+| <a name="input_dataform_workflows"></a> [dataform\_workflows](#input\_dataform\_workflows) | Dataform workflows to be created | <pre>map(object({<br/>    cron_schedule        = string<br/>    tags                 = list(string)<br/>    include_dependencies = optional(bool, false)<br/>  }))</pre> | `{}` | no |
+| <a name="input_extra_labels"></a> [extra\_labels](#input\_extra\_labels) | extra labels to be applied to all resources (in addition to init module labels) | `map(string)` | `{}` | no |
+| <a name="input_github_default_branch"></a> [github\_default\_branch](#input\_github\_default\_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
+| <a name="input_github_secret_name"></a> [github\_secret\_name](#input\_github\_secret\_name) | Name of the GitHub access token in Secret Manager | `string` | `"github-token"` | no |
+| <a name="input_location"></a> [location](#input_location) | Location for gcp resources | `string` | `"europe-west1"` | no |
+| <a name="input_runner_service_account_project_roles"></a> [runner\_service\_account\_project\_roles](#input_runner_service_account_project_roles) | Project-level roles to bind to the workflow runner service account from the init module. | `list(string)` | <pre>[<br/>  "roles/bigquery.dataEditor",<br/>  "roles/bigquery.jobUser"<br/>]</pre> | no |
+| <a name="input_runner_service_account_user_members"></a> [runner\_service\_account\_user\_members](#input_runner_service_account_user_members) | Additional principals to grant roles/iam.serviceAccountUser on the init-provided workflow runner service account. The module always grants group:sg-dig-team-data@entur.no by default. | `list(string)` | `[]` | no |
+| <a name="input_slack_notification_channel_id"></a> [slack_notification_channel_id](#input_slack_notification_channel_id) | notification channel id for slack alerting | `string` | `null` | no |
 
 ## Outputs
 

@@ -29,6 +29,13 @@ variable "github_repo_url" {
   description = "GitHub repository URL"
 }
 
+variable "dataform_repository_name" {
+  type        = string
+  default     = null
+  description = "Dataform workflows to be created"
+}
+
+
 variable "dataform_workflows" {
   type = map(object({
     cron_schedule        = string
@@ -57,16 +64,10 @@ variable "github_secret_name" {
   description = "Name of the GitHub access token in Secret Manager"
 }
 
-variable "runner_service_account_email" {
-  type        = string
-  default     = null
-  description = "Existing service account email to run Dataform workflows. Leave null to let the module create one."
-}
-
 variable "runner_service_account_user_members" {
   type        = list(string)
   default     = []
-  description = "Additional principals to grant roles/iam.serviceAccountUser on the runner service account. The module always grants group:sg-dig-team-data@entur.no by default."
+  description = "Additional principals to grant roles/iam.serviceAccountUser on the workflow runner service account supplied by the init module. The module always grants group:sg-dig-team-data@entur.no by default."
 }
 
 variable "runner_service_account_project_roles" {
@@ -88,23 +89,25 @@ variable "slack_notification_channel_id" {
 
 
 locals {
-  project_id                 = module.init.app.project_id
-  dataform_service_account   = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
-  github_repo_name           = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
-  service_account_project    = local.project_id
-  service_account_id_source  = lower(join("-", compact(["df", var.app_id, var.env, local.github_repo_name])))
-  service_account_id_tokens  = regexall("[a-z0-9]+", local.service_account_id_source)
-  service_account_id_base    = length(local.service_account_id_tokens) > 0 ? join("-", local.service_account_id_tokens) : lower("df-${var.env}-runner")
-  service_account_id         = substr(local.service_account_id_base, 0, 30)
-  workflow_service_account_email = coalesce(
-    var.runner_service_account_email,
-    try(google_service_account.workflow[0].email, null)
+  project_id               = module.init.app.project_id
+  dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
+  github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
+  init_service_account     = try(module.init.service_accounts.default, null)
+
+  workflow_service_account_email = try(local.init_service_account.email, null)
+  workflow_service_account_project_from_email = local.workflow_service_account_email == null ? null : split(".iam", split("@", local.workflow_service_account_email)[1])[0]
+  workflow_service_account_project = coalesce(
+    local.workflow_service_account_project_from_email,
+    try(local.init_service_account.project, null),
+    local.project_id
   )
-  workflow_service_account_member = "serviceAccount:${local.workflow_service_account_email}"
-  workflow_service_account_name   = var.runner_service_account_email != null ? "projects/${local.service_account_project}/serviceAccounts/${var.runner_service_account_email}" : try(google_service_account.workflow[0].name, null)
+  workflow_service_account_member = local.workflow_service_account_email == null ? null : "serviceAccount:${local.workflow_service_account_email}"
+  workflow_service_account_name   = local.workflow_service_account_email == null ? null : format("projects/%s/serviceAccounts/%s", local.workflow_service_account_project, local.workflow_service_account_email)
+
   runner_service_account_user_members = toset(concat([
     "group:sg-dig-team-data@entur.no",
   ], var.runner_service_account_user_members))
+
   labels = merge(
     var.extra_labels,
     { "repo" : local.github_repo_name },

@@ -22,7 +22,7 @@ module "init" {
 resource "google_dataform_repository" "main" {
   provider = google-beta
   project  = local.project_id
-  name     = local.github_repo_name
+  name     = coalesce(var.dataform_repository_name, local.github_repo_name)
   region   = var.location
   labels   = local.labels
 
@@ -57,7 +57,7 @@ resource "google_dataform_repository_workflow_config" "main" {
   lifecycle {
     precondition {
       condition     = local.workflow_service_account_email != null && local.workflow_service_account_email != ""
-      error_message = "A workflow runner service account email must be provided or created."
+      error_message = "The terraform-google-init module must expose service_accounts.default with a usable service account."
     }
   }
 
