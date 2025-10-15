@@ -1,3 +1,18 @@
+## Operator permissions
+
+The identity running `terraform apply` must be able to manage IAM bindings on
+service accounts in the target project. Grant `roles/iam.serviceAccountAdmin`
+or an equivalent custom role before applying this module; otherwise Terraform
+will fail while attaching `roles/iam.serviceAccountUser` to the workflow runner
+service account provided by the init module.
+
+> **Note**
+> This module reuses the default workflow-runner account exposed by the init
+> module (`module.init.service_accounts.default`). Ensure the init module
+> exposes this service account. You can adjust the roles granted to it through
+> `runner_service_account_project_roles` and extend impersonation with
+> `runner_service_account_user_members`.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -30,7 +45,10 @@
 | [google_monitoring_alert_policy.workflow_run_failed](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy) | resource |
 | [google_project_iam_member.project_bigquery_job_user](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.service_account_editor](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
+| [google_project_iam_member.workflow_runner_roles](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_secret_manager_secret_iam_member.dataform_secret_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
+| [google_service_account_iam_member.workflow_runner_additional_act_as](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_member) | resource |
+| [google_service_account_iam_member.workflow_runner_dataform_act_as](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_member) | resource |
 | [google_secret_manager_secret.github_token](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret) | data source |
 | [google_secret_manager_secret_version.github_token](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret_version) | data source |
 
@@ -48,9 +66,13 @@
 | <a name="input_github_default_branch"></a> [github\_default\_branch](#input\_github\_default\_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_github_secret_name"></a> [github\_secret\_name](#input\_github\_secret\_name) | Name of the GitHub access token in Secret Manager | `string` | `"github-token"` | no |
 | <a name="input_location"></a> [location](#input\_location) | Location for gcp resources | `string` | `"europe-west1"` | no |
+| <a name="input_runner_service_account_project_roles"></a> [runner\_service\_account\_project\_roles](#input\_runner\_service\_account\_project\_roles) | Project-level roles to bind to the runner service account. | `list(string)` | <pre>[<br/>  "roles/bigquery.dataEditor",<br/>  "roles/bigquery.jobUser"<br/>]</pre> | no |
+| <a name="input_runner_service_account_user_members"></a> [runner\_service\_account\_user\_members](#input\_runner\_service\_account\_user\_members) | Additional principals to grant roles/iam.serviceAccountUser on the workflow runner service account supplied by the init module. The module always grants group:sg-dig-team-data@entur.no by default. | `list(string)` | `[]` | no |
 | <a name="input_slack_notification_channel_id"></a> [slack\_notification\_channel\_id](#input\_slack\_notification\_channel\_id) | notification channel id for slack alerting | `string` | `null` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_workflow_service_account_email"></a> [workflow\_service\_account\_email](#output\_workflow\_service\_account\_email) | Email address of the service account used to run Dataform workflows. |
 <!-- END_TF_DOCS -->

@@ -54,11 +54,19 @@ resource "google_dataform_repository_workflow_config" "main" {
   provider = google-beta
   for_each = var.dataform_workflows
 
+  lifecycle {
+    precondition {
+      condition     = local.workflow_service_account_email != null && local.workflow_service_account_email != ""
+      error_message = "The terraform-google-init module must expose service_accounts.default with a usable service account."
+    }
+  }
+
   name          = each.key
   cron_schedule = each.value.cron_schedule
   invocation_config {
     included_tags                    = each.value.tags
     transitive_dependencies_included = each.value.include_dependencies
+    service_account                  = local.workflow_service_account_email
   }
 
   time_zone = "UTC"

@@ -64,6 +64,20 @@ variable "github_secret_name" {
   description = "Name of the GitHub access token in Secret Manager"
 }
 
+variable "runner_service_account_user_members" {
+  type        = list(string)
+  default     = []
+  description = "Additional principals to grant roles/iam.serviceAccountUser on the workflow runner service account supplied by the init module. The module always grants group:sg-dig-team-data@entur.no by default."
+}
+
+variable "runner_service_account_project_roles" {
+  type = list(string)
+  default = [
+    "roles/bigquery.dataEditor",
+    "roles/bigquery.jobUser"
+  ]
+  description = "Project-level roles to bind to the runner service account."
+}
 
 variable "slack_notification_channel_id" {
   type        = string
@@ -78,6 +92,22 @@ locals {
   project_id               = module.init.app.project_id
   dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
   github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
+  init_service_account     = try(module.init.service_accounts.default, null)
+
+  workflow_service_account_email = try(local.init_service_account.email, null)
+  workflow_service_account_project_from_email = local.workflow_service_account_email == null ? null : split(".iam", split("@", local.workflow_service_account_email)[1])[0]
+  workflow_service_account_project = coalesce(
+    local.workflow_service_account_project_from_email,
+    try(local.init_service_account.project, null),
+    local.project_id
+  )
+  workflow_service_account_member = local.workflow_service_account_email == null ? null : "serviceAccount:${local.workflow_service_account_email}"
+  workflow_service_account_name   = local.workflow_service_account_email == null ? null : format("projects/%s/serviceAccounts/%s", local.workflow_service_account_project, local.workflow_service_account_email)
+
+  runner_service_account_user_members = toset(concat([
+    "group:sg-dig-team-data@entur.no",
+  ], var.runner_service_account_user_members))
+
   labels = merge(
     var.extra_labels,
     { "repo" : local.github_repo_name },
