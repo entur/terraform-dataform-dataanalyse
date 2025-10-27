@@ -42,8 +42,8 @@ resource "google_dataform_repository_release_config" "main" {
 
   name          = var.branch_name
   git_commitish = var.branch_name
-  cron_schedule = "0 5 * * *"
-  time_zone     = "UTC"
+  cron_schedule = var.dataform_release_cron_schedule.cron_schedule
+  time_zone     = var.dataform_release_cron_schedule.timezone
 
   code_compilation_config {
     default_database = local.project_id
@@ -61,7 +61,7 @@ resource "google_dataform_repository_workflow_config" "main" {
     transitive_dependencies_included = each.value.include_dependencies
   }
 
-  time_zone = "UTC"
+  time_zone = each.value.timezone
 
   project        = local.project_id
   region         = var.location
