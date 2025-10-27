@@ -35,12 +35,23 @@ variable "dataform_repository_name" {
   description = "Dataform workflows to be created"
 }
 
+variable "dataform_release_cron_schedule" {
+  type = object(
+    {
+      cron_schedule = optional(string, "0 5 * * *")
+      timezone      = optional(string, "UTC")
+    }
+
+  )
+  description = "Cron schedule for dataform release config"
+}
 
 variable "dataform_workflows" {
   type = map(object({
     cron_schedule        = string
     tags                 = list(string)
     include_dependencies = optional(bool, false)
+    timezone             = optional(string, "UTC")
   }))
   default     = {}
   description = "Dataform workflows to be created"
