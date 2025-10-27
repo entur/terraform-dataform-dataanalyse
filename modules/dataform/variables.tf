@@ -46,8 +46,6 @@ variable "dataform_release_cron_schedule" {
   description = "Cron schedule for dataform release config"
 }
 
-
-
 variable "dataform_workflows" {
   type = map(object({
     cron_schedule        = string
