@@ -11,8 +11,8 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | 6.50.0 |
-| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | 6.50.0 |
+| <a name="provider_google"></a> [google](#provider\_google) | >= 6.0, < 7.0 |
+| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | >= 6.0, < 7.0 |
 
 ## Modules
 
@@ -39,11 +39,12 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_app_id"></a> [app\_id](#input\_app\_id) | Entur application ID | `string` | n/a | yes |
+| <a name="input_dataform_release_cron_schedule"></a> [dataform\_release\_cron\_schedule](#input\_dataform\_release\_cron\_schedule) | Cron schedule for dataform release config | <pre>object(<br/>    {<br/>      cron_schedule = optional(string, "0 5 * * *")<br/>      timezone      = optional(string, "UTC")<br/>    }<br/><br/>  )</pre> | n/a | yes |
 | <a name="input_env"></a> [env](#input\_env) | Environment descriptor (i.e. 'dev', 'tst', 'prd'). | `string` | n/a | yes |
 | <a name="input_github_repo_url"></a> [github\_repo\_url](#input\_github\_repo\_url) | GitHub repository URL | `string` | n/a | yes |
 | <a name="input_branch_name"></a> [branch\_name](#input\_branch\_name) | Branch name for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_dataform_repository_name"></a> [dataform\_repository\_name](#input\_dataform\_repository\_name) | Dataform workflows to be created | `string` | `null` | no |
-| <a name="input_dataform_workflows"></a> [dataform\_workflows](#input\_dataform\_workflows) | Dataform workflows to be created | <pre>map(object({<br/>    cron_schedule        = string<br/>    tags                 = list(string)<br/>    include_dependencies = optional(bool, false)<br/>  }))</pre> | `{}` | no |
+| <a name="input_dataform_workflows"></a> [dataform\_workflows](#input\_dataform\_workflows) | Dataform workflows to be created | <pre>map(object({<br/>    cron_schedule        = string<br/>    tags                 = list(string)<br/>    include_dependencies = optional(bool, false)<br/>    timezone             = optional(string, "UTC")<br/>  }))</pre> | `{}` | no |
 | <a name="input_extra_labels"></a> [extra\_labels](#input\_extra\_labels) | extra labels to be applied to all resources (in addition to init module labels) | `map(string)` | `{}` | no |
 | <a name="input_github_default_branch"></a> [github\_default\_branch](#input\_github\_default\_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_github_secret_name"></a> [github\_secret\_name](#input\_github\_secret\_name) | Name of the GitHub access token in Secret Manager | `string` | `"github-token"` | no |
