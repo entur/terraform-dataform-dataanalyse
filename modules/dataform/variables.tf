@@ -41,8 +41,8 @@ variable "dataform_release_cron_schedule" {
       cron_schedule = optional(string, "0 5 * * *")
       timezone      = optional(string, "UTC")
     }
-
   )
+  default     = {}
   description = "Cron schedule for dataform release config"
 }
 
