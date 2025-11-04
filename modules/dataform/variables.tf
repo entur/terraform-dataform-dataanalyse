@@ -94,6 +94,7 @@ locals {
     { "repo" : local.github_repo_name },
     module.init.labels
   )
+  notification_channel_id = "projects/${local.project_id}/notificationChannels/${var.slack_notification_channel_id}"
 }
 
 

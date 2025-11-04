@@ -3,7 +3,7 @@ resource "google_monitoring_alert_policy" "workflow_run_failed" {
 
   project               = local.project_id
   display_name          = "Dataform Workflow Failure Alert for ${local.github_repo_name}"
-  notification_channels = [var.slack_notification_channel_id]
+  notification_channels = [local.notification_channel_id]
   combiner              = "OR"
 
   conditions {
