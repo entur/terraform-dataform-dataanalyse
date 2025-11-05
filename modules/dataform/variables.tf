@@ -79,7 +79,7 @@ variable "github_secret_name" {
 variable "slack_notification_channel_id" {
   type        = string
   default     = null
-  description = "notification channel id for slack alerting"
+  description = "notification channel id for slack alerting. Format: projects/{project_id}/notificationChannels/{channel_id}"
 }
 
 
@@ -94,7 +94,7 @@ locals {
     { "repo" : local.github_repo_name },
     module.init.labels
   )
-  notification_channel_id = "projects/${local.project_id}/notificationChannels/${var.slack_notification_channel_id}"
+  notification_channel_id = var.slack_notification_channel_id
 }
 
 
