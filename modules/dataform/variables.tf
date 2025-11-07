@@ -35,6 +35,12 @@ variable "dataform_repository_name" {
   description = "Dataform workflows to be created"
 }
 
+variable "dataform_release_config_name" {
+  type        = string
+  default     = null
+  description = "Dataform release config name"
+}
+
 variable "dataform_release_cron_schedule" {
   type = object(
     {
