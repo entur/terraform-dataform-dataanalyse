@@ -89,13 +89,13 @@ variable "slack_notification_channel_id" {
 }
 
 variable "bigquery_datasets" {
-  type = list(object({
+  type = map(object({
     dataset_id  = string
     region      = optional(string, "EU")
     description = optional(string, null)
   }))
   default     = []
-  description = "List of BigQuery dataset IDs to be created in default app project"
+  description = "Map of BigQuery dataset IDs to be created in default app project"
 }
 
 locals {
