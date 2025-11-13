@@ -94,7 +94,7 @@ variable "bigquery_datasets" {
     region      = optional(string, "EU")
     description = optional(string, null)
   }))
-  default     = []
+  default     = {}
   description = "Map of BigQuery dataset IDs to be created in default app project"
 }
 
