@@ -5,6 +5,11 @@ on:
     branches: [main]
 
 jobs:
+  post-to-slack:
+    uses: entur/dataanalyse-workflows/.github/workflows/dataform-pr.yml@v1
+    with:
+      skip_terraform: true
+    secrets: inherit
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
