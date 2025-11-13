@@ -1,80 +1,81 @@
-name: 'Terraform PR Validation'
+name: "Terraform PR Validation"
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   terraform:
-    name: 'Terraform'
+    name: "Terraform"
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: ~1.13
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.13
 
-    - name: Terraform Format Check
-      id: fmt
-      run: terraform fmt -check -recursive
-      continue-on-error: true
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true
 
-    - name: Terraform Init
-      id: init
-      run: |
-        cd modules/dataform
-        terraform init
+      - name: Terraform Init
+        id: init
+        run: |
+          cd modules/dataform
+          terraform init
 
-    - name: Terraform Validate
-      id: validate
-      run: |
-        cd modules/dataform
-        terraform validate -no-color
+      - name: Terraform Validate
+        id: validate
+        run: |
+          cd modules/dataform
+          terraform validate -no-color
 
-    - name: Setup TFLint
-      uses: terraform-linters/setup-tflint@v4
-      with:
-        tflint_version: latest
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
 
-    - name: Init TFLint
-      run: tflint --init
+      - name: Init TFLint
+        run: tflint --init
 
-    - name: Run TFLint
-      run: |
-        cd modules/dataform
-        tflint --no-color
+      - name: Run TFLint
+        run: |
+          cd modules/dataform
+          tflint --no-color
 
-    - name: Comment PR
-      uses: actions/github-script@v7
-      if: github.event_name == 'pull_request'
-      env:
-        FMT: "terraform fmt"
-        INIT: "terraform init"
-        VALIDATE: "terraform validate"
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-          #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-          
-          <details><summary>Validation Output</summary>
-          
-          \`\`\`\n
-          ${{ steps.validate.outputs.stdout }}
-          \`\`\`
-          
-          </details>
-          
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
-          
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
+      - name: Comment PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          FMT: "terraform fmt"
+          INIT: "terraform init"
+          VALIDATE: "terraform validate"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+            <details><summary>Validation Output</summary>
+
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
