@@ -1,45 +1,46 @@
-name: 'Terraform Main Branch Validation'
+name: "Terraform Main Branch Validation"
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   terraform:
-    name: 'Terraform Validation'
+    name: "Terraform Validation"
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: ~1.13
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.13
 
-    - name: Terraform Format Check
-      run: terraform fmt -check -recursive
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
 
-    - name: Terraform Init
-      run: |
-        cd modules/dataform
-        terraform init
+      - name: Terraform Init
+        run: |
+          cd modules/dataform
+          terraform init
 
-    - name: Terraform Validate
-      run: |
-        cd modules/dataform
-        terraform validate
+      - name: Terraform Validate
+        run: |
+          cd modules/dataform
+          terraform validate
 
-    - name: Setup TFLint
-      uses: terraform-linters/setup-tflint@v4
-      with:
-        tflint_version: latest
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
 
-    - name: Init TFLint
-      run: tflint --init
+      - name: Init TFLint
+        run: tflint --init
 
-    - name: Run TFLint
-      run: |
-        cd modules/dataform
-        tflint
+      - name: Run TFLint
+        run: |
+          cd modules/dataform
+          tflint
+
