@@ -38,7 +38,7 @@ variable "dataform_repository_name" {
 variable "dataform_release_config_name" {
   type        = string
   default     = null
-  description = "Dataform release config name"
+  description = "(Deprecated: use dataform_release_configs instead) Dataform release config name"
 }
 
 variable "dataform_release_cron_schedule" {
@@ -49,7 +49,21 @@ variable "dataform_release_cron_schedule" {
     }
   )
   default     = {}
-  description = "Cron schedule for dataform release config"
+  description = "(Deprecated: use dataform_release_configs instead) Cron schedule for dataform release config"
+}
+
+variable "dataform_release_configs" {
+  type = map(object({
+    git_commitish    = string
+    cron_schedule    = optional(string, "0 5 * * *")
+    timezone         = optional(string, "UTC")
+    default_database = optional(string, null)    # If null, uses project_id
+    schema_suffix    = optional(string, null)    # Suffix to append to schema names
+    table_prefix     = optional(string, null)    # Prefix to add to table names
+    vars             = optional(map(string), {}) # Custom variables for compilation
+  }))
+  default     = {}
+  description = "Map of release configs to create. Key is the release config name. Supports multiple branches/configs with individual settings."
 }
 
 variable "dataform_workflows" {
@@ -58,6 +72,7 @@ variable "dataform_workflows" {
     tags                 = list(string)
     include_dependencies = optional(bool, false)
     timezone             = optional(string, "UTC")
+    release_config       = optional(string, null) # Name of release config to use, null uses default/legacy behavior
   }))
   default     = {}
   description = "Dataform workflows to be created"

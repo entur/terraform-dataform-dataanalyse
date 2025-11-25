@@ -34,8 +34,10 @@ resource "google_dataform_repository" "main" {
   }
 }
 
+# Legacy single release config (for backward compatibility)
 resource "google_dataform_repository_release_config" "main" {
   provider = google-beta
+  count    = length(var.dataform_release_configs) == 0 ? 1 : 0
 
   project    = local.project_id
   region     = var.location
@@ -48,6 +50,28 @@ resource "google_dataform_repository_release_config" "main" {
 
   code_compilation_config {
     default_database = local.project_id
+  }
+}
+
+# New multiple release configs support
+resource "google_dataform_repository_release_config" "configs" {
+  provider = google-beta
+  for_each = var.dataform_release_configs
+
+  project    = local.project_id
+  region     = var.location
+  repository = google_dataform_repository.main.name
+
+  name          = each.key
+  git_commitish = each.value.git_commitish
+  cron_schedule = each.value.cron_schedule
+  time_zone     = each.value.timezone
+
+  code_compilation_config {
+    default_database = coalesce(each.value.default_database, local.project_id)
+    schema_suffix    = each.value.schema_suffix
+    table_prefix     = each.value.table_prefix
+    vars             = each.value.vars
   }
 }
 
@@ -64,9 +88,10 @@ resource "google_dataform_repository_workflow_config" "main" {
 
   time_zone = each.value.timezone
 
-  project        = local.project_id
-  region         = var.location
-  repository     = google_dataform_repository.main.name
-  release_config = google_dataform_repository_release_config.main.id
+  project    = local.project_id
+  region     = var.location
+  repository = google_dataform_repository.main.name
+  # Use specified release config if provided, otherwise use legacy single config
+  release_config = each.value.release_config != null ? google_dataform_repository_release_config.configs[each.value.release_config].id : google_dataform_repository_release_config.main[0].id
 }
 
