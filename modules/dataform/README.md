@@ -27,6 +27,8 @@
 | [google-beta_google_dataform_repository.main](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_dataform_repository) | resource |
 | [google-beta_google_dataform_repository_release_config.main](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_dataform_repository_release_config) | resource |
 | [google-beta_google_dataform_repository_workflow_config.main](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_dataform_repository_workflow_config) | resource |
+| [google_bigquery_dataset.datasets](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_dataset) | resource |
+| [google_bigquery_dataset_iam_binding.dataform_sa_bigquery_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_dataset_iam_binding) | resource |
 | [google_monitoring_alert_policy.workflow_run_failed](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy) | resource |
 | [google_project_iam_member.project_bigquery_job_user](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.service_account_editor](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
@@ -41,6 +43,7 @@
 | <a name="input_app_id"></a> [app\_id](#input\_app\_id) | Entur application ID | `string` | n/a | yes |
 | <a name="input_env"></a> [env](#input\_env) | Environment descriptor (i.e. 'dev', 'tst', 'prd'). | `string` | n/a | yes |
 | <a name="input_github_repo_url"></a> [github\_repo\_url](#input\_github\_repo\_url) | GitHub repository URL | `string` | n/a | yes |
+| <a name="input_bigquery_datasets"></a> [bigquery\_datasets](#input\_bigquery\_datasets) | Map of BigQuery dataset IDs to be created in default app project | <pre>map(object({<br/>    dataset_id  = string<br/>    region      = optional(string, "EU")<br/>    description = optional(string, null)<br/>  }))</pre> | `{}` | no |
 | <a name="input_branch_name"></a> [branch\_name](#input\_branch\_name) | Branch name for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_dataform_release_config_name"></a> [dataform\_release\_config\_name](#input\_dataform\_release\_config\_name) | Dataform release config name | `string` | `null` | no |
 | <a name="input_dataform_release_cron_schedule"></a> [dataform\_release\_cron\_schedule](#input\_dataform\_release\_cron\_schedule) | Cron schedule for dataform release config | <pre>object(<br/>    {<br/>      cron_schedule = optional(string, "0 5 * * *")<br/>      timezone      = optional(string, "UTC")<br/>    }<br/>  )</pre> | `{}` | no |
