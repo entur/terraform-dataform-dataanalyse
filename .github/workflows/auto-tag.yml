@@ -1,0 +1,140 @@
+name: Auto Tag Management
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+    paths:
+      - 'modules/dataform/**/*.tf'
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  version-management:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name
+        id: branch
+        run: |
+          branch_name="${{ github.event.pull_request.head.ref }}"
+          echo "PR source branch: $branch_name"
+          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
+
+      - name: Calculate version
+        id: version
+        run: |
+          set -e  # Exit on error
+
+          # Get the latest tag
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Current latest tag: $latest_tag"
+
+          # Parse version components
+          version=${latest_tag#v}
+          IFS='.' read -r major minor patch <<< "$version"
+
+          # Validate version components
+          if [ -z "$major" ] || [ -z "$minor" ] || [ -z "$patch" ]; then
+            echo "::error::Failed to parse version from tag: $latest_tag"
+            exit 1
+          fi
+
+          # Get branch name
+          branch_name="${{ steps.branch.outputs.branch_name }}"
+
+          # Validate branch name
+          if [ -z "$branch_name" ]; then
+            echo "::error::Branch name is empty, cannot determine version bump"
+            exit 1
+          fi
+
+          echo "Analyzing branch: $branch_name"
+
+          # Determine version bump based on branch name pattern
+          if [[ "$branch_name" =~ ^(fix|bugfix)/ ]] || [[ "$branch_name" =~ ^(fix|bugfix)- ]]; then
+            # Patch bump for fix/bugfix branches
+            new_minor=$minor
+            new_patch=$((patch + 1))
+            bump_type="patch"
+            echo "Branch matches fix pattern -> patch bump"
+          else
+            # Minor bump for all other branches
+            new_minor=$((minor + 1))
+            new_patch=0
+            bump_type="minor"
+            echo "Branch does not match fix pattern -> minor bump"
+          fi
+
+          new_tag="v${major}.${new_minor}.${new_patch}"
+          major_tag="v${major}"
+
+          echo "Calculated tag: $new_tag (${bump_type} bump)"
+
+          # Save outputs
+          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+          echo "bump_type=$bump_type" >> $GITHUB_OUTPUT
+          echo "major_tag=$major_tag" >> $GITHUB_OUTPUT
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push tags
+        run: |
+          set -e  # Exit on error
+
+          new_tag="${{ steps.version.outputs.new_tag }}"
+          major_tag="${{ steps.version.outputs.major_tag }}"
+          bump_type="${{ steps.version.outputs.bump_type }}"
+
+          # Validate inputs
+          if [ -z "$new_tag" ] || [ -z "$major_tag" ]; then
+            echo "::error::Missing required tag information"
+            exit 1
+          fi
+
+          echo "Creating new tag: $new_tag (${bump_type} bump)"
+
+          # Check if tag already exists
+          if git rev-parse "$new_tag" >/dev/null 2>&1; then
+            echo "::error::Tag $new_tag already exists"
+            exit 1
+          fi
+
+          # Create the new semantic version tag
+          if ! git tag "$new_tag"; then
+            echo "::error::Failed to create tag $new_tag"
+            exit 1
+          fi
+
+          if ! git push origin "$new_tag"; then
+            echo "::error::Failed to push tag $new_tag"
+            exit 1
+          fi
+          echo "Pushed tag: $new_tag"
+
+          # Update the moving major version tag (e.g., v1, v2)
+          echo "Updating moving tag: $major_tag -> $new_tag"
+
+          if ! git tag -f "$major_tag" "$new_tag"; then
+            echo "::error::Failed to update moving tag $major_tag"
+            exit 1
+          fi
+
+          if ! git push -f origin "$major_tag"; then
+            echo "::error::Failed to push moving tag $major_tag"
+            exit 1
+          fi
+          echo "Updated and pushed moving tag: $major_tag"
+
+          echo "Successfully created $new_tag and updated $major_tag"
