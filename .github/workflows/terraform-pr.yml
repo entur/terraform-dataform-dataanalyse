@@ -6,7 +6,7 @@ on:
 
 jobs:
   post-to-slack:
-    uses: entur/dataanalyse-workflows/.github/workflows/dataform-pr.yml@v1
+    uses: entur/dataanalyse-workflows/.github/workflows/dataform-pr.yml@v1.0.3
     with:
       skip_terraform: true
     secrets: inherit
