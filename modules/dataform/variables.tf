@@ -88,8 +88,15 @@ variable "slack_notification_channel_id" {
   description = "notification channel id for slack alerting. Format: projects/{project_id}/notificationChannels/{channel_id}"
 }
 
-
-
+variable "bigquery_datasets" {
+  type = map(object({
+    dataset_id  = string
+    region      = optional(string, "EU")
+    description = optional(string, null)
+  }))
+  default     = {}
+  description = "Map of BigQuery dataset IDs to be created in default app project"
+}
 
 locals {
   project_id               = module.init.app.project_id
@@ -102,7 +109,5 @@ locals {
   )
   notification_channel_id = var.slack_notification_channel_id
 }
-
-
 
 
