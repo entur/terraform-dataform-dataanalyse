@@ -33,7 +33,7 @@ jobs:
         id: rc
         run: |
           labels='${{ toJson(github.event.pull_request.labels.*.name) }}'
-          is_rc=$(echo "$labels" | jq -r 'if any(. == "rc") then "true" else "false" end')
+          is_rc=$(echo "$labels" | jq -r 'any(. == "rc")')
           echo "is_rc=$is_rc" >> $GITHUB_OUTPUT
 
       - name: Calculate version
