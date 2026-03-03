@@ -38,8 +38,12 @@ jobs:
           if [ -n "$match" ]; then
             suffix="${match#prerelease:}"
             suffix="$(echo "$suffix" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
-            if [ -n "$suffix" ] && ! echo "$suffix" | grep -Eq '^[0-9A-Za-z.-]+$'; then
-              echo "::error::Invalid prerelease suffix '$suffix' from label '$match'. Allowed characters are [0-9A-Za-z.-]."
+            if [ -z "$suffix" ]; then
+              echo "::error::Prerelease label '$match' has an empty suffix. Use format 'prerelease:<suffix>'."
+              exit 1
+            fi
+            if ! echo "$suffix" | grep -Eq '^[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*$'; then
+              echo "::error::Invalid prerelease suffix '$suffix' from label '$match'. Allowed characters are [0-9A-Za-z-], with dots only as separators between non-empty identifiers."
               exit 1
             fi
             echo "Pre-release label found: $match -> suffix: $suffix"
