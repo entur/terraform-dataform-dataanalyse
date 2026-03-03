@@ -29,6 +29,18 @@ jobs:
           echo "PR source branch: $branch_name"
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
 
+      - name: Check for prerelease label
+        id: prerelease
+        run: |
+          suffix=""
+          labels='${{ toJson(github.event.pull_request.labels.*.name) }}'
+          match=$(echo "$labels" | jq -r '.[] | select(startswith("prerelease:"))' | head -1)
+          if [ -n "$match" ]; then
+            suffix="${match#prerelease:}"
+            echo "Pre-release label found: $match -> suffix: $suffix"
+          fi
+          echo "suffix=$suffix" >> $GITHUB_OUTPUT
+
       - name: Calculate version
         id: version
         run: |
@@ -79,6 +91,12 @@ jobs:
 
           echo "Calculated tag: $new_tag (${bump_type} bump)"
 
+          prerelease_suffix="${{ steps.prerelease.outputs.suffix }}"
+          if [ -n "$prerelease_suffix" ]; then
+            new_tag="${new_tag}-${prerelease_suffix}"
+            echo "Pre-release suffix applied: $new_tag"
+          fi
+
           # Save outputs
           echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
           echo "bump_type=$bump_type" >> $GITHUB_OUTPUT
@@ -124,17 +142,23 @@ jobs:
           echo "Pushed tag: $new_tag"
 
           # Update the moving major version tag (e.g., v1, v2)
-          echo "Updating moving tag: $major_tag -> $new_tag"
+          prerelease_suffix="${{ steps.prerelease.outputs.suffix }}"
+          if [ -z "$prerelease_suffix" ]; then
+            # Only update moving tag for stable releases
+            echo "Updating moving tag: $major_tag -> $new_tag"
 
-          if ! git tag -f "$major_tag" "$new_tag"; then
-            echo "::error::Failed to update moving tag $major_tag"
-            exit 1
+            if ! git tag -f "$major_tag" "$new_tag"; then
+              echo "::error::Failed to update moving tag $major_tag"
+              exit 1
+            fi
+
+            if ! git push -f origin "$major_tag"; then
+              echo "::error::Failed to push moving tag $major_tag"
+              exit 1
+            fi
+            echo "Updated and pushed moving tag: $major_tag"
+          else
+            echo "Skipping moving tag update for pre-release: $new_tag"
           fi
 
-          if ! git push -f origin "$major_tag"; then
-            echo "::error::Failed to push moving tag $major_tag"
-            exit 1
-          fi
-          echo "Updated and pushed moving tag: $major_tag"
-
-          echo "Successfully created $new_tag and updated $major_tag"
+          echo "Successfully created $new_tag"
