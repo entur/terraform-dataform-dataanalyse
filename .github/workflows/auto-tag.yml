@@ -31,10 +31,9 @@ jobs:
 
       - name: Check for RC label
         id: rc
-        run: |
-          labels='${{ toJson(github.event.pull_request.labels.*.name) }}'
-          is_rc=$(echo "$labels" | jq -r 'any(. == "rc")')
-          echo "is_rc=$is_rc" >> $GITHUB_OUTPUT
+        env:
+          IS_RC: ${{ contains(github.event.pull_request.labels.*.name, 'rc') }}
+        run: echo "is_rc=$IS_RC" >> $GITHUB_OUTPUT
 
       - name: Calculate version
         id: version
@@ -88,7 +87,8 @@ jobs:
           echo "Calculated tag: $new_tag (${bump_type} bump)"
 
           if [ "${{ steps.rc.outputs.is_rc }}" = "true" ]; then
-            new_tag="${new_tag}-rc"
+            rc_seq="${{ github.run_number }}"
+            new_tag="${new_tag}-rc.${rc_seq}"
             echo "RC suffix applied: $new_tag"
           fi
 
