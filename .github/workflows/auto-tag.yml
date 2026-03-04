@@ -29,14 +29,20 @@ jobs:
           echo "PR source branch: $branch_name"
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
 
+      - name: Check for RC label
+        id: rc
+        env:
+          IS_RC: ${{ contains(github.event.pull_request.labels.*.name, 'rc') }}
+        run: echo "is_rc=$IS_RC" >> $GITHUB_OUTPUT
+
       - name: Calculate version
         id: version
         run: |
           set -e  # Exit on error
 
-          # Get the latest tag
-          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "Current latest tag: $latest_tag"
+          # Get the latest stable semver tag reachable from HEAD (skip RC tags like v1.2.0-rc.42)
+          latest_tag=$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' --exclude '*-rc*' 2>/dev/null || echo "v0.0.0")
+          echo "Current latest stable tag: $latest_tag"
 
           # Parse version components
           version=${latest_tag#v}
@@ -78,6 +84,12 @@ jobs:
           major_tag="v${major}"
 
           echo "Calculated tag: $new_tag (${bump_type} bump)"
+
+          if [ "${{ steps.rc.outputs.is_rc }}" = "true" ]; then
+            rc_seq="${{ github.run_number }}"
+            new_tag="${new_tag}-rc.${rc_seq}"
+            echo "RC suffix applied: $new_tag"
+          fi
 
           # Save outputs
           echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
@@ -124,17 +136,21 @@ jobs:
           echo "Pushed tag: $new_tag"
 
           # Update the moving major version tag (e.g., v1, v2)
-          echo "Updating moving tag: $major_tag -> $new_tag"
+          if [ "${{ steps.rc.outputs.is_rc }}" = "true" ]; then
+            echo "Skipping moving tag update for RC release: $new_tag"
+          else
+            echo "Updating moving tag: $major_tag -> $new_tag"
 
-          if ! git tag -f "$major_tag" "$new_tag"; then
-            echo "::error::Failed to update moving tag $major_tag"
-            exit 1
+            if ! git tag -f "$major_tag" "$new_tag"; then
+              echo "::error::Failed to update moving tag $major_tag"
+              exit 1
+            fi
+
+            if ! git push -f origin "$major_tag"; then
+              echo "::error::Failed to push moving tag $major_tag"
+              exit 1
+            fi
+            echo "Updated and pushed moving tag: $major_tag"
           fi
 
-          if ! git push -f origin "$major_tag"; then
-            echo "::error::Failed to push moving tag $major_tag"
-            exit 1
-          fi
-          echo "Updated and pushed moving tag: $major_tag"
-
-          echo "Successfully created $new_tag and updated $major_tag"
+          echo "Successfully created $new_tag"
