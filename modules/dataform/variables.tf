@@ -88,6 +88,12 @@ variable "slack_notification_channel_id" {
   description = "notification channel id for slack alerting. Format: projects/{project_id}/notificationChannels/{channel_id}"
 }
 
+variable "service_account_email" {
+  type        = string
+  default     = null
+  description = "Custom service account email for Dataform to act as. When set, the repository uses this SA instead of the default Dataform agent."
+}
+
 variable "bigquery_datasets" {
   type = map(object({
     dataset_id  = string
@@ -101,6 +107,8 @@ variable "bigquery_datasets" {
 locals {
   project_id               = module.init.app.project_id
   dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
+  use_custom_service_account = var.service_account_email != null
+  effective_sa_member        = local.use_custom_service_account ? "serviceAccount:${var.service_account_email}" : local.dataform_service_account
   github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
   labels = merge(
     var.extra_labels,
