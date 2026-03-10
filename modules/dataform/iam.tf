@@ -18,7 +18,7 @@ resource "google_bigquery_dataset_iam_binding" "dataform_sa_bigquery_access" {
 }
 
 resource "google_service_account_iam_member" "dataform_token_creator" {
-  count              = local.use_custom_service_account ? 1 : 0
+  count              = local.use_custom_service_account && var.manage_service_account_iam ? 1 : 0
   service_account_id = "projects/${local.project_id}/serviceAccounts/${var.service_account_email}"
   role               = "roles/iam.serviceAccountTokenCreator"
   member             = local.dataform_service_account
