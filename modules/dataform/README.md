@@ -52,6 +52,7 @@
 | <a name="input_github_default_branch"></a> [github\_default\_branch](#input\_github\_default\_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_github_secret_name"></a> [github\_secret\_name](#input\_github\_secret\_name) | Name of the GitHub access token in Secret Manager | `string` | `"github-token"` | no |
 | <a name="input_location"></a> [location](#input\_location) | Location for gcp resources | `string` | `"europe-west1"` | no |
+| <a name="input_manage_service_account_iam"></a> [manage\_service\_account\_iam](#input\_manage\_service\_account\_iam) | Whether to manage IAM bindings on the custom service account (serviceAccountTokenCreator). Set to false if the caller lacks iam.serviceAccounts.setIamPolicy on the SA. | `bool` | `true` | no |
 | <a name="input_service_account_email"></a> [service\_account\_email](#input\_service\_account\_email) | Custom service account email for Dataform to act as. When set, the repository uses this SA instead of the default Dataform agent. | `string` | `null` | no |
 | <a name="input_slack_notification_channel_id"></a> [slack\_notification\_channel\_id](#input\_slack\_notification\_channel\_id) | notification channel id for slack alerting. Format: projects/{project\_id}/notificationChannels/{channel\_id} | `string` | `null` | no |
 
