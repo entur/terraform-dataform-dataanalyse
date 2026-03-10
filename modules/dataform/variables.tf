@@ -91,13 +91,19 @@ variable "slack_notification_channel_id" {
 variable "service_account_email" {
   type        = string
   default     = null
-  description = "Custom service account email for Dataform to act as. When set, the repository uses this SA instead of the default Dataform agent."
+  description = "Custom service account email for Dataform act-as mode. Used for IAM configuration. Only applied to the repository when activate_service_account is true."
 }
 
 variable "manage_service_account_iam" {
   type        = bool
   default     = true
   description = "Whether to manage IAM bindings on the custom service account (serviceAccountTokenCreator). Set to false if the caller lacks iam.serviceAccounts.setIamPolicy on the SA."
+}
+
+variable "activate_service_account" {
+  type        = bool
+  default     = true
+  description = "Whether to set the custom SA on the Dataform repository. When false, the SA email is configured for IAM but the repository continues using the default Dataform agent."
 }
 
 variable "bigquery_datasets" {
@@ -112,9 +118,11 @@ variable "bigquery_datasets" {
 
 locals {
   project_id               = module.init.app.project_id
-  dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
-  use_custom_service_account = var.service_account_email != null
-  effective_sa_member        = local.use_custom_service_account ? "serviceAccount:${var.service_account_email}" : local.dataform_service_account
+  dataform_service_account       = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
+  dataform_service_account_email = trimprefix(local.dataform_service_account, "serviceAccount:")
+  use_custom_service_account     = var.service_account_email != null
+  effective_sa_member            = local.use_custom_service_account ? "serviceAccount:${var.service_account_email}" : local.dataform_service_account
+  active_sa_email                = local.use_custom_service_account && var.activate_service_account ? var.service_account_email : local.dataform_service_account_email
   github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
   labels = merge(
     var.extra_labels,
