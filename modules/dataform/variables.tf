@@ -118,10 +118,11 @@ variable "bigquery_datasets" {
 
 locals {
   project_id               = module.init.app.project_id
-  dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
-  use_custom_service_account = var.service_account_email != null
-  effective_sa_member        = local.use_custom_service_account ? "serviceAccount:${var.service_account_email}" : local.dataform_service_account
-  active_sa_email            = local.use_custom_service_account && var.activate_service_account ? var.service_account_email : "service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
+  dataform_service_account       = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
+  dataform_service_account_email = trimprefix(local.dataform_service_account, "serviceAccount:")
+  use_custom_service_account     = var.service_account_email != null
+  effective_sa_member            = local.use_custom_service_account ? "serviceAccount:${var.service_account_email}" : local.dataform_service_account
+  active_sa_email                = local.use_custom_service_account && var.activate_service_account ? var.service_account_email : local.dataform_service_account_email
   github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
   labels = merge(
     var.extra_labels,
