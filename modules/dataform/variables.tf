@@ -100,6 +100,12 @@ variable "manage_service_account_iam" {
   description = "Whether to manage IAM bindings on the custom service account (serviceAccountTokenCreator). Set to false if the caller lacks iam.serviceAccounts.setIamPolicy on the SA."
 }
 
+variable "activate_service_account" {
+  type        = bool
+  default     = true
+  description = "Whether to set the custom SA on the Dataform repository. When false, the SA email is configured for IAM but the repository continues using the default Dataform agent."
+}
+
 variable "bigquery_datasets" {
   type = map(object({
     dataset_id  = string
