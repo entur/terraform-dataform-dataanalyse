@@ -92,16 +92,22 @@ variable "service_account_email" {
   type        = string
   default     = null
   description = <<-EOT
-    Custom service account email for Dataform act-as mode. When set, the Dataform
-    repository runs as this service account instead of the default Dataform agent.
+    Custom service account email for Dataform act-as mode. When set, this SA is
+    granted dataEditor on all datasets managed by this module alongside the default
+    Dataform agent, allowing permissions to be verified before migration.
 
     IAM prerequisites (not managed by this module):
     - Grant the Dataform service agent
         service-<project_number>@gcp-sa-dataform.iam.gserviceaccount.com
       the role roles/iam.serviceAccountTokenCreator on this custom SA.
-    - Ensure this custom SA has roles/bigquery.jobUser on the project and
-      roles/bigquery.dataEditor on all datasets it writes to.
+    - Ensure this custom SA has roles/bigquery.jobUser on the project.
   EOT
+}
+
+variable "use_custom_service_account" {
+  type        = bool
+  default     = false
+  description = "When true, sets the custom SA on the Dataform repository so workflows run as it. Requires service_account_email to be set."
 }
 
 variable "bigquery_datasets" {

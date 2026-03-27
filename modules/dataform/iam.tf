@@ -10,6 +10,9 @@ resource "google_bigquery_dataset_iam_binding" "dataform_sa_bigquery_access" {
 
   dataset_id = each.value.dataset_id
   role       = "roles/bigquery.dataEditor"
-  members    = [local.dataform_service_account]
-  project    = local.project_id
+  members = var.service_account_email != null ? [
+    local.dataform_service_account,
+    "serviceAccount:${var.service_account_email}",
+  ] : [local.dataform_service_account]
+  project = local.project_id
 }

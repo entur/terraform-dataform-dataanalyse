@@ -27,7 +27,7 @@ resource "google_dataform_repository" "main" {
   region   = var.location
   labels   = local.labels
 
-  service_account = var.service_account_email
+  service_account = var.use_custom_service_account ? var.service_account_email : null
 
   git_remote_settings {
     default_branch                      = var.github_default_branch
