@@ -31,7 +31,6 @@
 | [google_bigquery_dataset_iam_binding.dataform_sa_bigquery_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_dataset_iam_binding) | resource |
 | [google_monitoring_alert_policy.workflow_run_failed](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/monitoring_alert_policy) | resource |
 | [google_secret_manager_secret_iam_member.dataform_secret_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
-| [google_service_account_iam_member.dataform_token_creator](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_member) | resource |
 | [google_secret_manager_secret.github_token](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret) | data source |
 | [google_secret_manager_secret_version.github_token](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret_version) | data source |
 
@@ -42,7 +41,6 @@
 | <a name="input_app_id"></a> [app\_id](#input\_app\_id) | Entur application ID | `string` | n/a | yes |
 | <a name="input_env"></a> [env](#input\_env) | Environment descriptor (i.e. 'dev', 'tst', 'prd'). | `string` | n/a | yes |
 | <a name="input_github_repo_url"></a> [github\_repo\_url](#input\_github\_repo\_url) | GitHub repository URL | `string` | n/a | yes |
-| <a name="input_activate_service_account"></a> [activate\_service\_account](#input\_activate\_service\_account) | Whether to set the custom SA on the Dataform repository. When false, the SA email is configured for IAM but the repository continues using the default Dataform agent. | `bool` | `true` | no |
 | <a name="input_bigquery_datasets"></a> [bigquery\_datasets](#input\_bigquery\_datasets) | Map of BigQuery dataset IDs to be created in default app project | <pre>map(object({<br/>    dataset_id  = string<br/>    region      = optional(string, "EU")<br/>    description = optional(string, null)<br/>  }))</pre> | `{}` | no |
 | <a name="input_branch_name"></a> [branch\_name](#input\_branch\_name) | Branch name for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_dataform_release_config_name"></a> [dataform\_release\_config\_name](#input\_dataform\_release\_config\_name) | Dataform release config name | `string` | `null` | no |
@@ -53,13 +51,11 @@
 | <a name="input_github_default_branch"></a> [github\_default\_branch](#input\_github\_default\_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_github_secret_name"></a> [github\_secret\_name](#input\_github\_secret\_name) | Name of the GitHub access token in Secret Manager | `string` | `"github-token"` | no |
 | <a name="input_location"></a> [location](#input\_location) | Location for gcp resources | `string` | `"europe-west1"` | no |
-| <a name="input_manage_service_account_iam"></a> [manage\_service\_account\_iam](#input\_manage\_service\_account\_iam) | Whether to manage IAM bindings on the custom service account (serviceAccountTokenCreator). Set to false if the caller lacks iam.serviceAccounts.setIamPolicy on the SA. | `bool` | `true` | no |
-| <a name="input_service_account_email"></a> [service\_account\_email](#input\_service\_account\_email) | Custom service account email for Dataform act-as mode. Used for IAM configuration. Only applied to the repository when activate\_service\_account is true. | `string` | `null` | no |
+| <a name="input_service_account_email"></a> [service\_account\_email](#input\_service\_account\_email) | Custom service account email for Dataform act-as mode. When set, this SA is<br/>granted dataEditor on all datasets managed by this module alongside the default<br/>Dataform agent, allowing permissions to be verified before migration.<br/><br/>IAM prerequisites (not managed by this module):<br/>- Grant the Dataform service agent<br/>    service-<project\_number>@gcp-sa-dataform.iam.gserviceaccount.com<br/>  the role roles/iam.serviceAccountTokenCreator on this custom SA.<br/>- Ensure this custom SA has roles/bigquery.jobUser on the project. | `string` | `null` | no |
 | <a name="input_slack_notification_channel_id"></a> [slack\_notification\_channel\_id](#input\_slack\_notification\_channel\_id) | notification channel id for slack alerting. Format: projects/{project\_id}/notificationChannels/{channel\_id} | `string` | `null` | no |
+| <a name="input_use_custom_service_account"></a> [use\_custom\_service\_account](#input\_use\_custom\_service\_account) | When true, sets the custom SA on the Dataform repository so workflows run as it. Requires service\_account\_email to be set. | `bool` | `false` | no |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_effective_service_account"></a> [effective\_service\_account](#output\_effective\_service\_account) | The service account actively used by the Dataform repository at runtime. Reflects the custom SA only when both service\_account\_email is set and activate\_service\_account is true. |
+No outputs.
 <!-- END_TF_DOCS -->

@@ -91,19 +91,23 @@ variable "slack_notification_channel_id" {
 variable "service_account_email" {
   type        = string
   default     = null
-  description = "Custom service account email for Dataform act-as mode. Used for IAM configuration. Only applied to the repository when activate_service_account is true."
+  description = <<-EOT
+    Custom service account email for Dataform act-as mode. When set, this SA is
+    granted dataEditor on all datasets managed by this module alongside the default
+    Dataform agent, allowing permissions to be verified before migration.
+
+    IAM prerequisites (not managed by this module):
+    - Grant the Dataform service agent
+        service-<project_number>@gcp-sa-dataform.iam.gserviceaccount.com
+      the role roles/iam.serviceAccountTokenCreator on this custom SA.
+    - Ensure this custom SA has roles/bigquery.jobUser on the project.
+  EOT
 }
 
-variable "manage_service_account_iam" {
+variable "use_custom_service_account" {
   type        = bool
-  default     = true
-  description = "Whether to manage IAM bindings on the custom service account (serviceAccountTokenCreator). Set to false if the caller lacks iam.serviceAccounts.setIamPolicy on the SA."
-}
-
-variable "activate_service_account" {
-  type        = bool
-  default     = true
-  description = "Whether to set the custom SA on the Dataform repository. When false, the SA email is configured for IAM but the repository continues using the default Dataform agent."
+  default     = false
+  description = "When true, sets the custom SA on the Dataform repository so workflows run as it. Requires service_account_email to be set."
 }
 
 variable "bigquery_datasets" {
@@ -118,11 +122,7 @@ variable "bigquery_datasets" {
 
 locals {
   project_id               = module.init.app.project_id
-  dataform_service_account       = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
-  dataform_service_account_email = trimprefix(local.dataform_service_account, "serviceAccount:")
-  use_custom_service_account     = var.service_account_email != null
-  effective_sa_member            = local.use_custom_service_account ? "serviceAccount:${var.service_account_email}" : local.dataform_service_account
-  active_sa_email                = local.use_custom_service_account && var.activate_service_account ? var.service_account_email : local.dataform_service_account_email
+  dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
   github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
   labels = merge(
     var.extra_labels,
