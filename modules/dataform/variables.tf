@@ -91,7 +91,17 @@ variable "slack_notification_channel_id" {
 variable "service_account_email" {
   type        = string
   default     = null
-  description = "Custom service account email for Dataform act-as mode. When set, the Dataform repository runs as this SA."
+  description = <<-EOT
+    Custom service account email for Dataform act-as mode. When set, the Dataform
+    repository runs as this service account instead of the default Dataform agent.
+
+    IAM prerequisites (not managed by this module):
+    - Grant the Dataform service agent
+        service-<project_number>@gcp-sa-dataform.iam.gserviceaccount.com
+      the role roles/iam.serviceAccountTokenCreator on this custom SA.
+    - Ensure this custom SA has roles/bigquery.jobUser on the project and
+      roles/bigquery.dataEditor on all datasets it writes to.
+  EOT
 }
 
 variable "bigquery_datasets" {
@@ -105,10 +115,9 @@ variable "bigquery_datasets" {
 }
 
 locals {
-  project_id                     = module.init.app.project_id
-  dataform_service_account       = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
-  dataform_service_account_email = trimprefix(local.dataform_service_account, "serviceAccount:")
-  github_repo_name               = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
+  project_id               = module.init.app.project_id
+  dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
+  github_repo_name         = regex(".*\\/([^.]+)\\.git$", var.github_repo_url)[0] // Extracts string between last "/" and ".git"
   labels = merge(
     var.extra_labels,
     { "repo" : local.github_repo_name },

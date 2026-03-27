@@ -11,8 +11,8 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_google"></a> [google](#provider\_google) | 6.50.0 |
-| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | 6.50.0 |
+| <a name="provider_google"></a> [google](#provider\_google) | >= 6.0, < 7.0 |
+| <a name="provider_google-beta"></a> [google-beta](#provider\_google-beta) | >= 6.0, < 7.0 |
 
 ## Modules
 
@@ -51,7 +51,7 @@
 | <a name="input_github_default_branch"></a> [github\_default\_branch](#input\_github\_default\_branch) | Default branch for the GitHub repository | `string` | `"main"` | no |
 | <a name="input_github_secret_name"></a> [github\_secret\_name](#input\_github\_secret\_name) | Name of the GitHub access token in Secret Manager | `string` | `"github-token"` | no |
 | <a name="input_location"></a> [location](#input\_location) | Location for gcp resources | `string` | `"europe-west1"` | no |
-| <a name="input_service_account_email"></a> [service\_account\_email](#input\_service\_account\_email) | Custom service account email for Dataform act-as mode. When set, the Dataform repository runs as this SA. | `string` | `null` | no |
+| <a name="input_service_account_email"></a> [service\_account\_email](#input\_service\_account\_email) | Custom service account email for Dataform act-as mode. When set, the Dataform repository runs as this SA. IAM prerequisites (tokenCreator, dataset access) must be managed externally. | `string` | `null` | no |
 | <a name="input_slack_notification_channel_id"></a> [slack\_notification\_channel\_id](#input\_slack\_notification\_channel\_id) | notification channel id for slack alerting. Format: projects/{project\_id}/notificationChannels/{channel\_id} | `string` | `null` | no |
 
 ## Outputs
