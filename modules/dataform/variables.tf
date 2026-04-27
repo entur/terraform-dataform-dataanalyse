@@ -115,6 +115,29 @@ variable "bigquery_datasets" {
   description = "Map of BigQuery dataset IDs to be created in default app project"
 }
 
+variable "dataform_release_compilation_vars" {
+  type        = map(string)
+  default     = {}
+  description = <<-EOT
+    User variables passed to Dataform compilation, exposed as
+    `dataform.projectConfig.vars` in sqlx/JS. Use to inject env-specific
+    values (e.g. `{ env = var.env }`) when source/target databases or
+    schemas are derived from the deployment environment.
+  EOT
+}
+
+variable "dataform_release_schema_suffix" {
+  type        = string
+  default     = null
+  description = "Optional suffix appended to all dataset names at compile time."
+}
+
+variable "dataform_release_table_prefix" {
+  type        = string
+  default     = null
+  description = "Optional prefix prepended to all table names at compile time."
+}
+
 locals {
   project_id               = module.init.app.project_id
   dataform_service_account = "serviceAccount:service-${module.init.app.project_number}@gcp-sa-dataform.iam.gserviceaccount.com"
