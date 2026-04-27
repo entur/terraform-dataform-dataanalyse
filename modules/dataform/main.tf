@@ -50,6 +50,9 @@ resource "google_dataform_repository_release_config" "main" {
 
   code_compilation_config {
     default_database = local.project_id
+    vars             = var.dataform_release_compilation_vars
+    schema_suffix    = var.dataform_release_schema_suffix
+    table_prefix     = var.dataform_release_table_prefix
   }
 }
 
