@@ -81,6 +81,12 @@ variable "github_secret_name" {
   description = "Name of the GitHub access token in Secret Manager"
 }
 
+variable "github_token_secret_version" {
+  type        = string
+  default     = null
+  description = "Opt-in. Secret Manager version of the GitHub token the Dataform repository reads, as an alias or a number: \"latest\" or \"3\". Default null keeps today's behaviour: the version number resolved at plan time, which needs a new apply after every token rotation."
+}
+
 
 variable "slack_notification_channel_id" {
   type        = string

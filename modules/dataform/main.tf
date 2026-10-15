@@ -30,9 +30,15 @@ resource "google_dataform_repository" "main" {
   service_account = var.service_account_email
 
   git_remote_settings {
-    default_branch                      = var.github_default_branch
-    url                                 = var.github_repo_url
-    authentication_token_secret_version = data.google_secret_manager_secret_version.github_token.id
+    default_branch = var.github_default_branch
+    url            = var.github_repo_url
+    # Default: the version number resolved at plan time (data source). Opt-in: an alias such as
+    # "latest", so a token rotation needs no apply. See var.github_token_secret_version.
+    authentication_token_secret_version = (
+      var.github_token_secret_version == null
+      ? data.google_secret_manager_secret_version.github_token.id
+      : "${data.google_secret_manager_secret.github_token.id}/versions/${var.github_token_secret_version}"
+    )
   }
 }
 
