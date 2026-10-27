@@ -54,6 +54,12 @@ resource "google_dataform_repository_release_config" "main" {
     schema_suffix    = var.dataform_release_schema_suffix
     table_prefix     = var.dataform_release_table_prefix
   }
+
+  # A rename replaces the release config. Create the new one first, so the workflow configs
+  # can move to it before the old one goes; Dataform refuses to delete a referenced one.
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "google_dataform_repository_workflow_config" "main" {
